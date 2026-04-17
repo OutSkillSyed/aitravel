@@ -1,0 +1,56 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* Adventor palette — doc 2 */
+    --color-primary: #e8642a;
+    --color-primary-dark: #c04e1a;
+    --color-secondary: #1a3c5e;
+    --color-accent: #f4c842;
+    --color-surface: #ffffff;
+    --color-surface-alt: #f8f5f1;
+    --color-dark: #0f1b2d;
+    --color-text: #1a1a2e;
+    --color-text-muted: #6b7280;
+    --color-success: #16a34a;
+    --color-danger: #dc2626;
+    --color-border: #e5e0d8;
+
+    /* shadcn/ui base mappings */
+    --background: 0 0% 100%;
+    --foreground: 233 10% 15%;
+    --card: 0 0% 100%;
+    --card-foreground: 233 10% 15%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 233 10% 15%;
+    --muted: 36 20% 96%;
+    --muted-foreground: 218 9% 47%;
+    --ring: 19 81% 54%;
+    --radius: 0.75rem;
+  }
+
+  html, body {
+    color: var(--color-text);
+    background: var(--color-surface);
+    font-family: var(--font-body, 'Inter'), system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+  }
+
+  h1, h2, h3, h4 {
+    font-family: var(--font-display, 'Playfair Display'), serif;
+    letter-spacing: -0.01em;
+    color: var(--color-dark);
+  }
+
+  /* Ensure 44×44 min touch targets on interactive elements — doc 2 */
+  button, a.btn, [role="button"] {
+    min-height: 44px;
+  }
+}
+
+@layer components {
+  .container-app {
+    @apply mx-auto w-full max-w-screen-xl px-4 md:px-6;
+  }
+}

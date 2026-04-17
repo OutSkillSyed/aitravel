@@ -1,0 +1,28 @@
+# deps
+node_modules/
+.pnpm-store/
+
+# next
+.next/
+out/
+next-env.d.ts
+
+# tests / coverage
+coverage/
+.nyc_output/
+playwright-report/
+test-results/
+
+# env
+.env
+.env.local
+.env.*.local
+!.env.example
+
+# logs / OS / editor
+*.log
+.DS_Store
+Thumbs.db
+.vscode/*
+!.vscode/extensions.json
+.idea/

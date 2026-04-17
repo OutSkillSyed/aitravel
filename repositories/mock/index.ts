@@ -238,12 +238,15 @@ class MemNotificationRepo implements NotificationRepo {
   }
 }
 
-// Singleton bundle — survives for the lifetime of the dev server process.
-let bundle: RepoBundle | null = null;
+// Singleton bundle stored on globalThis so route handlers, RSCs, and HMR
+// reloads all share the same in-memory state during dev.
+const GLOBAL_KEY = '__aitravel_mock_repos__';
+type GlobalStore = typeof globalThis & { [GLOBAL_KEY]?: RepoBundle };
 
 export function mockRepos(): RepoBundle {
-  if (!bundle) {
-    bundle = {
+  const g = globalThis as GlobalStore;
+  if (!g[GLOBAL_KEY]) {
+    g[GLOBAL_KEY] = {
       trips: new MemTripRepo(),
       hotels: new MemHotelRepo(),
       nearby: new MemNearbyRepo(),
@@ -256,5 +259,5 @@ export function mockRepos(): RepoBundle {
       notifications: new MemNotificationRepo(),
     };
   }
-  return bundle;
+  return g[GLOBAL_KEY]!;
 }

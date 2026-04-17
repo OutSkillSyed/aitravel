@@ -28,7 +28,7 @@ export const HotelSearchQuerySchema = z.object({
   city: z.string().min(2),
   checkin: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
   checkout: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
-  guests: z.number().int().min(1).max(9).default(1),
-  max_price_inr: z.number().positive().optional(),
+  guests: z.coerce.number().int().min(1).max(9).default(1),
+  max_price_inr: z.coerce.number().positive().optional(),
 });
 export type HotelSearchQuery = z.infer<typeof HotelSearchQuerySchema>;

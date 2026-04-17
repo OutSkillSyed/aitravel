@@ -15,17 +15,18 @@ export interface ScoreInputs {
 }
 
 export function scoreOption(persona: OptionType, x: ScoreInputs): number {
-  const spendRatio = Math.min(1, x.totalCostInr / x.budgetInr);
-  const budgetRoom = 1 - spendRatio; // how much under budget
+  const spendRatio = x.totalCostInr / x.budgetInr;
+  const budgetRoom = Math.max(0, 1 - spendRatio);
   const rating = x.avgHotelRating / 5;
   const stopsPenalty = 1 / (1 + x.transportStops);
   const travelTimePenalty = Math.max(0, 1 - x.transportHours / 24);
+  const overBudgetPenalty = Math.max(0, spendRatio - 1);
 
   switch (persona) {
     case 'cheapest':
       return 0.7 * budgetRoom + 0.2 * rating + 0.1 * stopsPenalty;
     case 'comfort':
-      return 0.5 * rating + 0.3 * stopsPenalty + 0.2 * travelTimePenalty - 0.1 * Math.max(0, spendRatio - 1);
+      return 0.5 * rating + 0.3 * stopsPenalty + 0.2 * travelTimePenalty - 0.5 * overBudgetPenalty;
     case 'best':
     default:
       return 0.35 * budgetRoom + 0.35 * rating + 0.2 * stopsPenalty + 0.1 * travelTimePenalty;

@@ -3,12 +3,14 @@ import { Compass, Sparkles } from 'lucide-react';
 
 import { cn } from '@/lib/utils';
 
-const nav = [
+type NavItem = { href: string; label: string; icon?: typeof Sparkles };
+
+const nav: NavItem[] = [
   { href: '/plan', label: 'Plan a trip' },
   { href: '/hotels', label: 'Hotels' },
   { href: '/transport', label: 'Transport' },
   { href: '/surprise-me', label: 'Surprise Me', icon: Sparkles },
-] as const;
+];
 
 export function SiteHeader() {
   return (
@@ -22,7 +24,7 @@ export function SiteHeader() {
           {nav.map((n) => (
             <Link
               key={n.href}
-              href={n.href}
+              href={n.href as never}
               className={cn(
                 'inline-flex items-center gap-1.5 text-ink-muted transition-colors hover:text-ink',
               )}

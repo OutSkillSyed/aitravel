@@ -26,7 +26,7 @@ import type {
 } from '@/domain/trip';
 import { PlannerOutputSchema } from '@/domain/trip';
 import type { Hotel } from '@/domain/hotel';
-import type { CanonicalTransport, TransportMode } from '@/domain/transport';
+import type { CanonicalTransport } from '@/domain/transport';
 
 import { adapters } from '@/adapters';
 import { allocateBreakdown, scoreOption } from './scorer';
@@ -111,7 +111,8 @@ async function buildCandidate(input: TripInput, destination: string): Promise<Ca
   const sortedHotels = [...hotels].sort(
     (a, b) => b.hotel_json.price_per_night_inr - a.hotel_json.price_per_night_inr,
   );
-  const pickByPersona = sortedHotels[0]; // default; planner picks per persona later
+  const pickByPersona = sortedHotels[0];
+  if (!pickByPersona) return null;
   const hotelNights = input.days;
   const transportCost = (transport?.price_inr ?? 0) * input.traveller_count;
   const hotelTotal = pickByPersona.hotel_json.price_per_night_inr * hotelNights;

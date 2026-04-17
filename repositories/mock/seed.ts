@@ -1,13 +1,17 @@
-import { randomUUID } from 'node:crypto';
-
 import type { Hotel } from '@/domain/hotel';
 import type { User, Traveller } from '@/domain/user';
 import type { NearbyPlace } from '@/domain/nearby';
 import type { Alert } from '@/domain/alert';
 import type { PriceHistory } from '@/domain/price-history';
+import { stableUuid } from '@/lib/utils/stable-uuid';
 
-const now = () => new Date().toISOString();
-const future = (days: number) => new Date(Date.now() + days * 86_400_000).toISOString();
+// Deterministic "now" so subsequent serverless invocations build the same
+// seed rows (important for created_at equality in tests, and for nearby cache
+// TTL not to whipsaw across cold starts).
+const SEED_EPOCH = '2026-01-01T00:00:00.000Z';
+const now = () => SEED_EPOCH;
+const future = (days: number) =>
+  new Date(new Date(SEED_EPOCH).getTime() + days * 86_400_000).toISOString();
 
 export const MOCK_USER: User = {
   id: '00000000-0000-0000-0000-000000000001',
@@ -20,7 +24,7 @@ export const MOCK_USER: User = {
 
 export const MOCK_TRAVELLERS: Traveller[] = [
   {
-    id: randomUUID(),
+    id: stableUuid('traveller:demo-traveller'),
     user_id: MOCK_USER.id,
     first_name: 'Demo',
     last_name: 'Traveller',
@@ -54,10 +58,11 @@ function hotel(
   price: number,
   supplier: string,
 ): Hotel {
+  const supplierHotelId = `${supplier.toUpperCase()}-${name.replace(/\s+/g, '').slice(0, 8)}`;
   return {
-    id: randomUUID(),
+    id: stableUuid(`hotel:${supplier}:${supplierHotelId}`),
     supplier,
-    supplier_hotel_id: `${supplier.toUpperCase()}-${name.replace(/\s+/g, '').slice(0, 8)}`,
+    supplier_hotel_id: supplierHotelId,
     name,
     lat,
     lng,
@@ -90,7 +95,7 @@ export function buildNearbyFor(hotel: Hotel): NearbyPlace[] {
   ];
   return categories.flatMap((cat, ci) =>
     Array.from({ length: 2 }, (_, i) => ({
-      id: randomUUID(),
+      id: stableUuid(`nearby:${hotel.id}:${cat}:${i}`),
       hotel_id: hotel.id,
       place_id: `mock-place-${hotel.id.slice(0, 8)}-${cat}-${i}`,
       name: mockPlaceName(cat, hotel.city, i),
@@ -122,7 +127,7 @@ function mockPlaceName(cat: NearbyPlace['category'], city: string, idx: number):
 
 export const MOCK_ALERTS: Alert[] = [
   {
-    id: randomUUID(),
+    id: stableUuid('alert:DEL-GOI:price_drop'),
     user_id: MOCK_USER.id,
     entity_key: 'DEL-GOI',
     threshold_inr: 5000,
@@ -133,13 +138,14 @@ export const MOCK_ALERTS: Alert[] = [
   },
 ];
 
+const HISTORY_EPOCH = new Date(SEED_EPOCH).getTime();
 export const MOCK_PRICE_HISTORY: PriceHistory[] = Array.from({ length: 20 }, (_, i) => ({
-  id: randomUUID(),
+  id: stableUuid(`price:DEL-GOI:${i}`),
   entity_type: 'flight_route',
   entity_key: 'DEL-GOI',
   supplier: 'amadeus',
   price_inr: 5500 + Math.sin(i / 2) * 800,
   baseline_inr: 5500,
   anomaly_score: i === 17 ? -2.6 : (i % 5) * 0.1,
-  recorded_at: new Date(Date.now() - (20 - i) * 86_400_000).toISOString(),
+  recorded_at: new Date(HISTORY_EPOCH - (20 - i) * 86_400_000).toISOString(),
 }));

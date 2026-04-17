@@ -18,6 +18,7 @@ import {
 } from '@/components/ui/select';
 import { TripInputSchema, type TripInput } from '@/domain/trip';
 import type { Trip } from '@/domain/trip';
+import { TRIP_STORAGE_PREFIX } from '@/components/plan-result-client';
 
 async function createPlan(input: TripInput): Promise<Trip> {
   const res = await fetch('/api/trips/plan', {
@@ -30,6 +31,19 @@ async function createPlan(input: TripInput): Promise<Trip> {
     throw new Error(data?.error?.message ?? 'planner failed');
   }
   const data = (await res.json()) as { trip: Trip };
+  // Stash the trip locally so /plan/[id] can render it on the next request.
+  // Serverless instances don't share in-memory state, so we cannot rely on
+  // the mock repo for cross-request reads.
+  if (typeof window !== 'undefined') {
+    try {
+      window.sessionStorage.setItem(
+        `${TRIP_STORAGE_PREFIX}${data.trip.id}`,
+        JSON.stringify(data.trip),
+      );
+    } catch {
+      // sessionStorage can throw in private modes — fall through silently.
+    }
+  }
   return data.trip;
 }
 

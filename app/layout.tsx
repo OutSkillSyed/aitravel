@@ -1,8 +1,9 @@
 import type { Metadata } from 'next';
 
+import { Chrome } from '@/components/chrome';
 import { Providers } from '@/components/providers';
-import { SiteHeader } from '@/components/site-header';
 import { SiteFooter } from '@/components/site-footer';
+import { SiteHeader } from '@/components/site-header';
 import { fontBody, fontDisplay, fontMono } from '@/lib/fonts';
 import { clientEnv } from '@/lib/env';
 
@@ -35,9 +36,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     >
       <body className="min-h-screen bg-surface text-ink antialiased">
         <Providers>
-          <SiteHeader />
-          <main>{children}</main>
-          <SiteFooter />
+          <Chrome header={<SiteHeader />} footer={<SiteFooter />}>
+            {children}
+          </Chrome>
         </Providers>
       </body>
     </html>
